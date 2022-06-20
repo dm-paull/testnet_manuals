@@ -23,7 +23,7 @@ make
 ./build/gnokey add account --recover
 ./build/gnokey list
 
-address=
+read -p "Wallet Address: " address
 echo 'export address='$address >> $HOME/.bash_profile
 source $HOME/.bash_profile
 
@@ -35,9 +35,9 @@ while true; do curl 'https://gno.land:5050/' --data-raw 'toaddr='$address; ./bui
 # регистрация нашего аккаунта
 ./build/gnokey query auth/accounts/$address --remote gno.land:36657
 
-username=
-account_number=
-sequence_number=
+read -p "User Name: " username
+read -p "Account Number: " account_number
+read -p "Sequence Number: " sequence_number
 echo 'export username='$username >> $HOME/.bash_profile
 echo 'export account_number='$account_number >> $HOME/.bash_profile
 echo 'export sequence_number='$sequence_number >> $HOME/.bash_profile
