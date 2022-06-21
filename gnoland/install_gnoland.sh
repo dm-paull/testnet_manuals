@@ -58,3 +58,9 @@ source $HOME/.bash_profile
 
 # проводим транзакцию
 ./build/gnokey broadcast signed.tx --remote gno.land:36657
+
+# выполняем задание
+read -p "Вставьте ссылку на свою работу: " url
+echo 'export url='$url >> $HOME/.bash_profile
+source $HOME/.bash_profile
+./build/gnokey maketx call $address --pkgpath "gno.land/r/boards" --func "CreateReply" --gas-fee 1gnot --gas-wanted 3000000 --send "" --broadcast true --chainid testchain --args "1" --args "8" --args "8" --args "<URL>" --remote gno.land:36657
