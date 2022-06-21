@@ -29,7 +29,13 @@ source $HOME/.bash_profile
 
 
 # получение токенов
-while true; do curl 'https://gno.land:5050/' --data-raw 'toaddr='$address; ./build/gnokey query "bank/balances/"$address --remote gno.land:36657; sleep 2; done
+while true;
+    do curl 'https://gno.land:5050/'
+        --data-raw 'toaddr='$address;
+        ./build/gnokey query "bank/balances/"$address
+        --remote gno.land:36657;
+        sleep 2;
+    done
 
 
 # регистрация нашего аккаунта
