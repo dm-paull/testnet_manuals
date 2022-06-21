@@ -3,30 +3,35 @@
 # подготовка сервера
 sudo apt update && sudo apt upgrade -y
 sudo apt install make clang pkg-config libssl-dev libclang-dev build-essential git curl ntp jq llvm tmux htop screen -y
-wget https://golang.org/dl/go1.18.3.linux-amd64.tar.gz
-sudo tar -C /usr/local -xzf go1.18.3.linux-amd64.tar.gz
 
-export GOROOT=/usr/local/go
-export GOPATH=$HOME/go
-export GO111MODULE=on
-export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
-EOF
-source ~/.profile
+# установка GO
+ver="1.18.2"
+cd $HOME
+wget "https://golang.org/dl/go$ver.linux-amd64.tar.gz"
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf "go$ver.linux-amd64.tar.gz"
+rm "go$ver.linux-amd64.tar.gz"
+echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> ~/.bash_profile
+source ~/.bash_profile
 go version
-rm -rf go1.18.3.linux-amd64.tar.gz
 
 # установка ноды
 git clone https://github.com/gnolang/gno/
 cd gno
 make
+sudo mv ~/go/bin/seid /usr/local/bin/seid
+
+# создаем кошелек (generate) или восстанавливаем уже существующий (--recover)
 ./build/gnokey generate
 ./build/gnokey add account --recover
+
+# список кошельков
 ./build/gnokey list
 
+# установка переменной address
 read -p "Wallet Address: " address
 echo 'export address='$address >> $HOME/.bash_profile
 source $HOME/.bash_profile
-
 
 # получение токенов
 while true;
