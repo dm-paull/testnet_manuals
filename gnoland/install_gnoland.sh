@@ -18,8 +18,7 @@ go version
 # установка ноды
 git clone https://github.com/gnolang/gno/
 cd gno
-make
-sudo mv ~/go/bin/seid /usr/local/bin/seid
+make install
 
 # создаем кошелек (generate) или восстанавливаем уже существующий (--recover)
 ./build/gnokey generate
