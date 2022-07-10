@@ -13,14 +13,6 @@ echo "=================================================="
 
 sleep 2
 
-# firewall
-sudo ufw default allow outgoing
-sudo ufw default deny incoming
-sudo ufw allow ssh/tcp
-sudo ufw limit ssh/tcp
-sudo ufw allow 26656,26660/tcp
-sudo ufw enable
-
 # set vars
 if [ ! $NODENAME ]; then
 	read -p "Enter node name: " NODENAME
@@ -155,3 +147,16 @@ do
   esac
 done
 
+WALLET_ADDRESS=$(seid keys show $WALLET -a)
+VALOPER_ADDRESS=$(seid keys show $WALLET --bech val -a)
+echo 'export WALLET_ADDRESS='${WALLET_ADDRESS} >> $HOME/.bash_profile
+echo 'export VALOPER_ADDRESS='${VALOPER_ADDRESS} >> $HOME/.bash_profile
+source $HOME/.bash_profile
+
+# firewall
+sudo ufw default allow outgoing
+sudo ufw default deny incoming
+sudo ufw allow ssh/tcp
+sudo ufw limit ssh/tcp
+sudo ufw allow 26656,26660/tcp
+sudo ufw enable
