@@ -13,12 +13,20 @@ echo "=================================================="
 
 sleep 2
 
+# firewall
+sudo ufw default allow outgoing
+sudo ufw default deny incoming
+sudo ufw allow ssh/tcp
+sudo ufw limit ssh/tcp
+sudo ufw allow 26656,26660/tcp
+sudo ufw enable
+
 # set vars
 if [ ! $NODENAME ]; then
 	read -p "Enter node name: " NODENAME
 	echo 'export NODENAME='$NODENAME >> $HOME/.bash_profile
 fi
-echo "export WALLET=wallet" >> $HOME/.bash_profile
+echo "export WALLET="$NODENAME"-Wallet" >> $HOME/.bash_profile
 echo "export CHAIN_ID=sei-testnet-2" >> $HOME/.bash_profile
 source $HOME/.bash_profile
 
@@ -127,3 +135,23 @@ sudo systemctl restart seid
 echo '=============== SETUP FINISHED ==================='
 echo -e 'To check logs: \e[1m\e[32mjournalctl -u seid -f -o cat \e[0m'
 echo -e 'To check sync status: \e[1m\e[32mcurl -s localhost:26657/status | jq .result.sync_info \e[0m'
+
+# load variables into system
+source $HOME/.bash_profile
+
+# create or restore wallet
+PS3='Do you want to create or restore wallet? (input your choise number and press Enter): '
+options=( "Create" "Restore" )
+select opt in "${options[@]}"
+do
+  case $opt in
+    "Create")
+      seid keys add $WALLET
+      break
+    ;;
+    "Restore")
+      seid keys add $WALLET --recover
+    ;;
+  esac
+done
+
