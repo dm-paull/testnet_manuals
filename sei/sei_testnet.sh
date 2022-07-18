@@ -18,20 +18,20 @@ if [ ! $NODENAME ]; then
 	read -p "Enter node name: " NODENAME
 	echo 'export NODENAME='$NODENAME >> $HOME/.bash_profile
 fi
-echo "export WALLET="$NODENAME"-Wallet" >> $HOME/.bash_profile
-echo "export CHAIN_ID=sei-testnet-2" >> $HOME/.bash_profile
+SEI_PORT=12
+if [ ! $WALLET ]; then
+	echo "export WALLET="$NODENAME"-Wallet" >> $HOME/.bash_profile
+fi
+echo "export SEI_CHAIN_ID=atlantic-1" >> $HOME/.bash_profile
+echo "export SEI_PORT=${SEI_PORT}" >> $HOME/.bash_profile
 source $HOME/.bash_profile
-
-# Set peers!
-PEERS="67cd4f00052f81d4abbcc8013e300b302a3ffe6e@95.216.189.214:26656,5082637d2face9dd32c4ad7eff34d38df4244c9a@65.21.123.69:26641,4aaa57eb2ed8f839253193a893389338c081929b@80.82.215.233:26656,38b4d78c7d6582fb170f6c19330a7e37e6964212@194.163.189.114:46656,27aab76f983cd7c6558f1dfc50b919daaef14555@3.22.112.181:26656,585727dac5df8f8662a8ff42052a9584a1f7ee95@165.22.25.77:26656,dc882e58c0c51763a12423dfcac5815ef092bc29@65.108.202.114:26656"
-
-sed -i.bak -e "s/^persistent_peers =./persistent_peers = "$PEERS"/" $HOME/.sei/config/config.toml
 
 echo '================================================='
 echo -e "Your node name: \e[1m\e[32m$NODENAME\e[0m"
 echo -e "Your wallet name: \e[1m\e[32m$WALLET\e[0m"
-echo -e "Your chain name: \e[1m\e[32m$CHAIN_ID\e[0m"
-echo -e '================================================='
+echo -e "Your chain name: \e[1m\e[32m$SEI_CHAIN_ID\e[0m"
+echo -e "Your port: \e[1m\e[32m$SEI_PORT\e[0m"
+echo '================================================='
 sleep 2
 
 echo -e "\e[1m\e[32m1. Updating packages... \e[0m" && sleep 1
@@ -40,10 +40,10 @@ sudo apt update && sudo apt upgrade -y
 
 echo -e "\e[1m\e[32m2. Installing dependencies... \e[0m" && sleep 1
 # packages
-sudo apt install curl tar wget clang pkg-config libssl-dev jq build-essential bsdmainutils git make ncdu gcc git jq chrony liblz4-tool -y
+sudo apt install curl build-essential git wget jq make gcc tmux -y
 
 # install go
-ver="1.18.1"
+ver="1.18.2"
 cd $HOME
 wget "https://golang.org/dl/go$ver.linux-amd64.tar.gz"
 sudo rm -rf /usr/local/go
@@ -56,68 +56,71 @@ go version
 echo -e "\e[1m\e[32m3. Downloading and building binaries... \e[0m" && sleep 1
 # download binary
 cd $HOME
-rm sei-chain -rf
-git clone https://github.com/sei-protocol/sei-chain.git
-cd sei-chain
-git checkout 1.0.2beta
+git clone https://github.com/sei-protocol/sei-chain.git && cd sei-chain
+git checkout 1.0.6beta
 make install 
-mv ~/go/bin/seid /usr/local/bin/seid
 
 # config
-seid config chain-id $CHAIN_ID
-seid config keyring-backend file
+seid config chain-id $SEI_CHAIN_ID
+seid config keyring-backend test
+seid config node tcp://localhost:${SEI_PORT}657
 
 # init
-seid init $NODENAME --chain-id $CHAIN_ID
+seid init $NODENAME --chain-id $SEI_CHAIN_ID
 
 # download genesis and addrbook
-wget -qO $HOME/.sei/config/genesis.json "https://raw.githubusercontent.com/sei-protocol/testnet/master/sei-testnet-2/genesis.json"
-wget -qO $HOME/.sei/config/addrbook.json "https://raw.githubusercontent.com/sei-protocol/testnet/master/sei-testnet-2/addrbook.json"
-
-# set minimum gas price
-sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0usei\"/" $HOME/.sei/config/app.toml
+wget -qO $HOME/.sei/config/genesis.json "https://raw.githubusercontent.com/sei-protocol/testnet/main/sei-incentivized-testnet/genesis.json"
+wget -qO $HOME/.sei/config/addrbook.json "https://raw.githubusercontent.com/sei-protocol/testnet/main/sei-incentivized-testnet/addrbook.json"
 
 # set peers and seeds
-SEEDS=""
-PEERS="c4c6ead7b3d5ddf85e62704d56746c2d4be88bee@65.21.181.135:26656,38b4d78c7d6582fb170f6c19330a7e37e6964212@194.163.189.114:46656,5b5ec09067a5fcaccf75f19b45ab29ce07e0167c@18.118.159.154:26656,b20fa6b0a283e153c446fd58dd1e1ae56b09a65d@159.69.110.238:26656,613f6f5a67c4f0625599ca74b98b7d722f908262@159.65.195.25:36376,1c384cbe9421957813f49865bb8db8c190a90415@139.59.38.171:36376,8b5d1f7d5422e373b00c129ccda14556b69e2a61@167.235.21.137:26656,8c4ec366b5ebd182ffe463e3e1a3a6a345d7d1eb@80.82.215.233:26656,214d45c890cccc09ee725bd101a60dcd690cd554@49.12.215.72:26676,d87dcc1d6b5517b4da9a1ca48717a68ee3bd1d6a@89.163.215.204:26656,fed3ec8e12ddde3fc8e90efc1746e55d10a623f0@65.109.11.114:26656"
+SEEDS="df1f6617ff5acdc85d9daa890300a57a9d956e5e@sei-atlantic-1.seed.rhinostake.com:16660"
+PEERS="22991efaa49dbaae857669d44cb564406a244811@18.222.18.162:26656,a37d65086e78865929ccb7388146fb93664223f7@18.144.13.149:26656,873a358b46b07c0c7c0280397a5ad27954a10633@141.95.175.196:26656,e66f9a9cab4428bfa3a7f32abbedbc684e734a48@185.193.17.129:12656,16225e262a0d38fe73073ab199f583e4a607e471@135.181.59.162:19656,2efd524f097b3fef2d26d0031fda21a72a51a765@38.242.213.174:12656,3b5ae3a1691d4ed24e67d7fe1499bc081c3ad8b0@65.108.131.189:20956,ad6d30dc6805df4f48b49d9013bbb921a5713fa6@20.211.82.153:26656,4e53c634e89f7b7ecff98e0d64a684269403dd78@38.242.235.141:26656,da5f6fcd1cd2ba8c7de8a06fb3ab56ab6a8157cf@38.242.235.142:26656,89e7d8c9eefc1c9a9b3e1faff31c67e0674f9c08@165.227.11.230:26656,94b6fa7ae5554c22e81a81e4a0928c48e41801d8@88.99.3.158:10956,b95aa07e60928fbc5ba7da9b6fe8c51798bd40be@51.250.6.195:26656,94b72206c0b0007494e20e2f9b958cd57e970d48@209.145.50.102:26656,94cf3893ded18bc6e3991d5add88449cd3f6c297@65.108.230.75:26656,82de728de0d663c03a820e570b94adac19c09adf@5.9.80.215:26656,5e1f8ccfa64dfd1c17e3fdac0dbf50f5fcc1acc3@209.126.7.113:26656,6a5113e8412f68bbeab733bb1297a0a38f884f7c@162.55.80.116:26656,7c95b2eec599369bebb8281b960589dc2857548a@164.215.102.44:26656,4bf8aa7b80f4db8a6f2abf5d757c9cab5d3f4d85@188.40.98.169:26656,9e38cf7ccb898632482a09b26ecba3f7e1a9e300@51.75.135.46:26656,641eea8d26c4b3b479b95a2cb4bd04712f3eda29@135.181.249.71:12656,8625abf6079da0e3326b0ad74c9c0e263af39654@137.184.44.146:12656,11c84300b4417af7e6c081f413003176b33b3877@51.75.135.47:26656,8a349512cf1ce179a126cb8762aea955ca1a261f@195.201.243.40:26651,6c27c768936ff8eebde94fe898b54df71f936e48@47.156.153.124:56656,7f037abdf485d02b95e50e9ba481166ddd6d6cae@185.144.99.65:26656,90916e0b118f2c00e90a40a0180b275261b547f2@65.108.72.121:26656,02be57dc6d6491bf272b823afb81f24d61243e1e@141.94.139.233:26656,ed3ec09ab24b8fcf0a36bc80de4b97f1e379d346@38.242.206.198:26656,7caa7add8d8a279e2da67a72700ab2d4540fbc08@34.97.43.89:12656,cce4c3526409ec516107db695233f9b047d52bf6@128.199.59.125:36376,3f6e68bd476a7cd3f491105da50306f8ebb74643@65.21.143.79:21156"
 sed -i -e "s/^seeds *=.*/seeds = \"$SEEDS\"/; s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" $HOME/.sei/config/config.toml
 
-# enable prometheus
-sed -i -e "s/prometheus = false/prometheus = true/" $HOME/.sei/config/config.toml
-sed -i -e "s/prometheus-retention-time = 0/prometheus-retention-time = 5/" $HOME/.sei/config/config.toml
+# set custom ports
+sed -i.bak -e "s%^proxy_app = \"tcp://127.0.0.1:26658\"%proxy_app = \"tcp://127.0.0.1:${SEI_PORT}658\"%; s%^laddr = \"tcp://127.0.0.1:26657\"%laddr = \"tcp://127.0.0.1:${SEI_PORT}657\"%; s%^pprof_laddr = \"localhost:6060\"%pprof_laddr = \"localhost:${SEI_PORT}060\"%; s%^laddr = \"tcp://0.0.0.0:26656\"%laddr = \"tcp://0.0.0.0:${SEI_PORT}656\"%; s%^prometheus_listen_addr = \":26660\"%prometheus_listen_addr = \":${SEI_PORT}660\"%" $HOME/.sei/config/config.toml
+sed -i.bak -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:${SEI_PORT}317\"%; s%^address = \":8080\"%address = \":${SEI_PORT}080\"%; s%^address = \"0.0.0.0:9090\"%address = \"0.0.0.0:${SEI_PORT}090\"%; s%^address = \"0.0.0.0:9091\"%address = \"0.0.0.0:${SEI_PORT}091\"%" $HOME/.sei/config/app.toml
+
+# disable indexing
+indexer="null"
+sed -i -e "s/^indexer *=.*/indexer = \"$indexer\"/" $HOME/.sei/config/config.toml
 
 # config pruning
 pruning="custom"
 pruning_keep_recent="100"
 pruning_keep_every="0"
-pruning_interval="10"
-
+pruning_interval="50"
 sed -i -e "s/^pruning *=.*/pruning = \"$pruning\"/" $HOME/.sei/config/app.toml
 sed -i -e "s/^pruning-keep-recent *=.*/pruning-keep-recent = \"$pruning_keep_recent\"/" $HOME/.sei/config/app.toml
 sed -i -e "s/^pruning-keep-every *=.*/pruning-keep-every = \"$pruning_keep_every\"/" $HOME/.sei/config/app.toml
 sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $HOME/.sei/config/app.toml
 
+# set minimum gas price
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0usei\"/" $HOME/.sei/config/app.toml
+
+# enable prometheus
+sed -i -e "s/prometheus = false/prometheus = true/" $HOME/.sei/config/config.toml
+
 # reset
-seid tendermint unsafe-reset-all
+seid tendermint unsafe-reset-all --home $HOME/.sei
 
 echo -e "\e[1m\e[32m4. Starting service... \e[0m" && sleep 1
 # create service
-tee $HOME/seid.service > /dev/null <<EOF
+sudo tee /etc/systemd/system/seid.service > /dev/null <<EOF
 [Unit]
-Description=seid
-After=network.target
+Description=sei
+After=network-online.target
+
 [Service]
-Type=simple
 User=$USER
-ExecStart=$(which seid) start
+ExecStart=$(which seid) start --home $HOME/.sei
 Restart=on-failure
-RestartSec=10
+RestartSec=3
 LimitNOFILE=65535
+
 [Install]
 WantedBy=multi-user.target
 EOF
-
-sudo mv $HOME/seid.service /etc/systemd/system/
 
 # start service
 sudo systemctl daemon-reload
@@ -125,10 +128,9 @@ sudo systemctl enable seid
 sudo systemctl restart seid
 
 echo '=============== SETUP FINISHED ==================='
-echo -e 'To check logs: \e[1m\e[32mjournalctl -u seid -f -o cat \e[0m'
-echo -e 'To check sync status: \e[1m\e[32mcurl -s localhost:26657/status | jq .result.sync_info \e[0m'
+echo -e 'To check logs: \e[1m\e[32mjournalctl -u seid -f -o cat\e[0m'
+echo -e "To check sync status: \e[1m\e[32mcurl -s localhost:${SEI_PORT}657/status | jq .result.sync_info\e[0m"
 
-# load variables into system
 source $HOME/.bash_profile
 
 # create or restore wallet
@@ -143,6 +145,7 @@ do
     ;;
     "Restore")
       seid keys add $WALLET --recover
+      break
     ;;
   esac
 done
