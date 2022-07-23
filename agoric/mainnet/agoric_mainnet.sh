@@ -55,6 +55,7 @@ go version
 echo "export CHAIN_ID=$(jq -r .chainName < $HOME/chain.json)" >> $HOME/.bash_profile
 
 echo -e "\e[1m\e[32m3. Downloading and building binaries... \e[0m" && sleep 1
+
 # download binary
 git clone https://github.com/Agoric/ag0
 cd ag0
