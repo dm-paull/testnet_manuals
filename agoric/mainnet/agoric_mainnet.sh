@@ -119,8 +119,8 @@ EOF
 echo -e "\e[1m\e[32m4. Starting service... \e[0m" && sleep 1
 # start service
 sudo systemctl daemon-reload
-sudo systemctl enable ag0
-sudo systemctl restart ag0
+sudo systemctl enable agoricd
+sudo systemctl restart agoricd
 
 echo '=============== SETUP FINISHED ==================='
 echo -e 'To check logs: \e[1m\e[32mjournalctl -u ag0 -f -o cat\e[0m'
