@@ -32,7 +32,7 @@ sudo apt install nodejs=16.* yarn build-essential jq -y
 sleep 1
 
 # install go
-ver="1.19"
+ver="1.17"
 cd $HOME
 wget "https://golang.org/dl/go$ver.linux-amd64.tar.gz"
 sudo rm -rf /usr/local/go
