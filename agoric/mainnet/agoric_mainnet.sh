@@ -122,6 +122,8 @@ sudo systemctl daemon-reload
 sudo systemctl enable agoricd
 sudo systemctl restart agoricd
 
+# load variables into system
+#source $HOME/.bash_profile
+
+
 echo '=============== SETUP FINISHED ==================='
-echo -e 'To check logs: \e[1m\e[32mjournalctl -u ag0 -f -o cat\e[0m'
-echo -e 'To check sync status: \e[1m\e[32mcurl -s localhost:26657/status | jq .result.sync_info\e[0m'
