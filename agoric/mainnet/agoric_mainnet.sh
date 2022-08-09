@@ -1,15 +1,6 @@
 #!/bin/bash
 
-echo -e "\033[0;35m"
-echo " :::    ::: ::::::::::: ::::    :::  ::::::::  :::::::::  :::::::::: ::::::::  ";
-echo " :+:   :+:      :+:     :+:+:   :+: :+:    :+: :+:    :+: :+:       :+:    :+: ";
-echo " +:+  +:+       +:+     :+:+:+  +:+ +:+    +:+ +:+    +:+ +:+       +:+        ";
-echo " +#++:++        +#+     +#+ +:+ +#+ +#+    +:+ +#+    +:+ +#++:++#  +#++:++#++ ";
-echo " +#+  +#+       +#+     +#+  +#+#+# +#+    +#+ +#+    +#+ +#+              +#+ ";
-echo " #+#   #+#  #+# #+#     #+#   #+#+# #+#    #+# #+#    #+# #+#       #+#    #+# ";
-echo " ###    ###  #####      ###    ####  ########  #########  ########## ########  ";
-echo -e "\e[0m"
-
+echo "Install Agoric DM_Paul"
 
 sleep 2
 
@@ -21,7 +12,7 @@ if [ ! $NODENAME ]; then
 	read -p "Enter node name: " NODENAME
 	echo 'export NODENAME='$NODENAME >> $HOME/.bash_profile
 fi
-echo "export WALLET="$NODENAME"-Wallet" >> $HOME/.bash_profile
+echo 'export WALLET='$NODENAME'-Wallet' >> $HOME/.bash_profile
 source $HOME/.bash_profile
 
 echo -e "\e[1m\e[32m1. Updating packages... \e[0m" && sleep 1
@@ -37,11 +28,11 @@ curl https://deb.nodesource.com/setup_14.x | sudo bash
 curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
 sudo apt update && sudo apt upgrade -y
-sudo apt install nodejs=14.* yarn build-essential jq -y
+sudo apt install nodejs=16.* yarn build-essential jq -y
 sleep 1
 
 # install go
-ver="1.18.2"
+ver="1.19"
 cd $HOME
 wget "https://golang.org/dl/go$ver.linux-amd64.tar.gz"
 sudo rm -rf /usr/local/go
