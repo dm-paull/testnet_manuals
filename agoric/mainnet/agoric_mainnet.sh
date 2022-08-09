@@ -49,7 +49,7 @@ echo -e "\e[1m\e[32m3. Downloading and building binaries... \e[0m" && sleep 1
 # download binary
 git clone https://github.com/Agoric/ag0
 cd ag0
-git checkout agoric-3.1
+git checkout agoric-upgrade-6
 make build
 . $HOME/.bash_profile
 cp $HOME/ag0/build/ag0 /usr/local/bin
